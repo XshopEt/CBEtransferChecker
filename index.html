@@ -51,7 +51,7 @@
             margin-bottom: 5px;
             color: #555;
         }
-        input[type="text"] {
+        input[type="text"], input[type="file"] {
             width: 100%;
             padding: 10px;
             font-size: 1rem;
@@ -78,17 +78,19 @@
             color: #6A0DAD;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script> <!-- Add Tesseract.js -->
 </head>
 <body>
     <div class="container">
-        <img src="logo.jpg" alt="CBE Logo"> <!-- Ensure "logo.jpg" is in the same directory as this HTML file -->
+        <img src="logo.jpg" alt="CBE Logo">
         
         <h2>CBE Transfer Checker</h2>
         
         <form id="inputForm">
             <div class="form-group">
-                <label for="ftNumber">FT Number</label>
-                <input type="text" id="ftNumber" name="ftNumber" placeholder="Enter FT Number" value="FT24" required>
+                <label for="ftNumber">FT Number (or Upload Image)</label>
+                <input type="text" id="ftNumber" name="ftNumber" placeholder="FT24..." required>
+                <input type="file" id="fileUpload" accept="image/*" onchange="extractFTNumber()">
             </div>
             <div class="form-group">
                 <label for="accountNumber">CBE Account Number (Last 8 Digits)</label>
@@ -101,13 +103,28 @@
     </div>
 
     <script>
-        // Load only the saved CBE Account Number from localStorage
-        document.addEventListener("DOMContentLoaded", function() {
-            const savedAccountNumber = localStorage.getItem("accountNumber");
-            if (savedAccountNumber) {
-                document.getElementById("accountNumber").value = savedAccountNumber;
+        function extractFTNumber() {
+            const file = document.getElementById('fileUpload').files[0];
+            if (file) {
+                Tesseract.recognize(
+                    file,
+                    'eng',
+                    {
+                        logger: (m) => console.log(m)
+                    }
+                ).then(({ data: { text } }) => {
+                    const ftNumberMatch = text.match(/FT\d+[A-Z0-9]*/i); // Regex to match FT number format
+                    if (ftNumberMatch) {
+                        document.getElementById('ftNumber').value = ftNumberMatch[0];
+                    } else {
+                        alert("No FT Number found in the image.");
+                    }
+                }).catch(error => {
+                    console.error("Error during OCR processing:", error);
+                    alert("Failed to process the image.");
+                });
             }
-        });
+        }
 
         function openLink() {
             const ftNumber = document.getElementById("ftNumber").value;
@@ -124,6 +141,14 @@
                 alert("Please enter both the FT number and last 8 digits of the CBE account number.");
             }
         }
+
+        // Load only the saved CBE Account Number from localStorage
+        document.addEventListener("DOMContentLoaded", function() {
+            const savedAccountNumber = localStorage.getItem("accountNumber");
+            if (savedAccountNumber) {
+                document.getElementById("accountNumber").value = savedAccountNumber;
+            }
+        });
     </script>
 </body>
 </html>
