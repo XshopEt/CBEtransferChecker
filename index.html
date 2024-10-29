@@ -115,9 +115,12 @@
         
         <form id="inputForm">
             <div class="form-group">
-                <label for="ftNumber">FT Number (or Upload Image)</label>
+                <label for="ftNumber">FT Number (or Upload/Take Photo)</label>
                 <input type="text" id="ftNumber" name="ftNumber" placeholder="FT24..." required>
-                <input type="file" id="fileUpload" accept="image/*" onchange="extractFTNumber()">
+                
+                <!-- File upload or take photo option -->
+                <input type="file" id="fileUpload" accept="image/*" capture="environment" onchange="extractFTNumber()">
+                <small>Choose a file or take a photo of the slip</small>
             </div>
             <div class="form-group">
                 <label for="accountNumber">CBE Account Number (Last 8 Digits)</label>
