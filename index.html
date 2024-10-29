@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CBE Transfer Checker</title>
+    <title>CBE Transfer Checker with Ads</title>
     <style>
         /* Basic reset and styling */
         * {
@@ -98,26 +98,39 @@
             font-size: 0.85rem;
             color: #6A0DAD;
         }
-        /* Spinner styling */
+        /* Spinner and Ad overlay styling */
         .overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7); /* Dim background */
             display: none; /* Hidden by default */
             justify-content: center;
             align-items: center;
             border-radius: 8px;
+            color: #fff;
+            flex-direction: column;
         }
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
             border-top-color: #fff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+        }
+        .ad-container {
+            margin-top: 20px;
+            background-color: #fff;
+            color: #000;
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            text-align: center;
+            border-radius: 4px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         }
         @keyframes spin {
             to {
@@ -138,7 +151,6 @@
                 <label for="ftNumber">FT Number (or Upload/Take Photo)</label>
                 <input type="text" id="ftNumber" name="ftNumber" placeholder="FT24..." required>
                 
-                <!-- Separate file upload and take picture options -->
                 <div class="file-options">
                     <label for="chooseFile">Choose File</label>
                     <input type="file" id="chooseFile" accept="image/*" onchange="extractFTNumber(this.files[0])">
@@ -154,9 +166,13 @@
             <button type="button" onclick="openLink()">Generate Link</button>
         </form>
 
-        <!-- Loading overlay with spinner -->
+        <!-- Loading overlay with spinner and ad container -->
         <div id="overlay" class="overlay">
             <div class="spinner"></div>
+            <div class="ad-container">
+                <!-- Display "logo copy.jpg" as Ad -->
+                <img src="logo copy.jpg" alt="Ad" style="width:100%; border-radius:4px;">
+            </div>
         </div>
 
         <div class="footer">Developed by XSHOP</div>
@@ -167,7 +183,7 @@
             const overlay = document.getElementById('overlay');
 
             if (file) {
-                // Show the overlay with spinner while processing
+                // Show the overlay with spinner and ad while processing
                 overlay.style.display = 'flex';
 
                 Tesseract.recognize(
@@ -187,7 +203,7 @@
                     console.error("Error during OCR processing:", error);
                     alert("Failed to process the image.");
                 }).finally(() => {
-                    // Hide the overlay with spinner after processing
+                    // Hide the overlay with spinner and ad after processing
                     overlay.style.display = 'none';
                 });
             }
