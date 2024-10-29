@@ -3,256 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CBE Transfer Checker with Ads</title>
+    <title>CBE Transfer Checker</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js"></script>
     <style>
-        /* Basic reset and styling */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            color: #333;
-            background-image: url('background.jpg'); /* Set the background image */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-        .container {
-            max-width: 400px;
-            width: 100%;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-        }
-        .container img {
-            width: 80px;
-            margin-bottom: 20px;
-        }
-        .container h2 {
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-            color: #6A0DAD;
-        }
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        label {
-            display: block;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-            color: #555;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .file-options {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-        }
-        .file-options input[type="file"] {
-            display: none; /* Hide the file input itself */
-        }
-        .file-options label {
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            color: #fff;
-            background-color: #6A0DAD;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .file-options label:hover {
-            background-color: #580A93;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            font-size: 1rem;
-            color: #fff;
-            background-color: #6A0DAD;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #580A93;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 0.85rem;
-            color: #6A0DAD;
-        }
-        /* Spinner and Ad overlay styling */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7); /* Dim background */
-            display: none; /* Hidden by default */
-            justify-content: center;
-            align-items: center;
-            border-radius: 8px;
-            color: #fff;
-            flex-direction: column;
-        }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        .ad-container {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 300px;
-            padding: 10px;
-            text-align: center;
-            border-radius: 4px;
-            box-shadow: none;
-            background-color: transparent; /* Make background transparent */
-        }
-        .ad-container img {
-            width: 100%;
-            border-radius: 4px;
-        }
-        .counter {
-            margin-top: 20px;
-            font-size: 1rem;
-            color: #6A0DAD;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        /* Basic styling */
+        .container { text-align: center; margin-top: 50px; }
+        .counter { font-size: 20px; margin-top: 20px; }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script> <!-- Add Tesseract.js -->
 </head>
 <body>
     <div class="container">
-        <img src="logo.jpg" alt="CBE Logo">
-        
         <h2>CBE Transfer Checker</h2>
-        
         <form id="inputForm">
-            <div class="form-group">
-                <label for="ftNumber">FT Number (or Upload/Take Photo)</label>
-                <input type="text" id="ftNumber" name="ftNumber" placeholder="FT24..." required>
-                
-                <div class="file-options">
-                    <label for="chooseFile">Choose File</label>
-                    <input type="file" id="chooseFile" accept="image/*" onchange="extractFTNumber(this.files[0])">
-                    
-                    <label for="takePhoto">Take Picture</label>
-                    <input type="file" id="takePhoto" accept="image/*" capture="environment" onchange="extractFTNumber(this.files[0])">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="accountNumber">CBE Account Number (Last 8 Digits)</label>
-                <input type="text" id="accountNumber" name="accountNumber" placeholder="Enter Last 8 Digits" required>
-            </div>
-            <button type="button" onclick="openLink()">Generate Link</button>
+            <input type="text" id="ftNumber" placeholder="FT Number">
+            <input type="text" id="accountNumber" placeholder="CBE Account Number (Last 8 Digits)">
+            <button type="button" onclick="generateLink()">Generate Link</button>
         </form>
-
-        <!-- Display user counter -->
-        <div id="userCounter" class="counter"></div>
-
-        <!-- Loading overlay with spinner and ad container -->
-        <div id="overlay" class="overlay">
-            <div class="spinner"></div>
-            <div class="ad-container">
-                <!-- Display "Logos.png" as Ad -->
-                <img src="Logos.png" alt="Ad">
-            </div>
-        </div>
-
-        <div class="footer">Developed by XSHOP</div>
+        <div id="globalCounterDisplay" class="counter">Total Links Generated: Loading...</div>
     </div>
 
     <script>
-        function extractFTNumber(file) {
-            const overlay = document.getElementById('overlay');
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-auth-domain",
+            databaseURL: "your-database-url",
+            projectId: "your-project-id",
+            storageBucket: "your-storage-bucket",
+            messagingSenderId: "your-messaging-sender-id",
+            appId: "your-app-id"
+        };
 
-            if (file) {
-                // Show the overlay with spinner and ad while processing
-                overlay.style.display = 'flex';
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
 
-                Tesseract.recognize(
-                    file,
-                    'eng',
-                    {
-                        logger: (m) => console.log(m)
-                    }
-                ).then(({ data: { text } }) => {
-                    const ftNumberMatch = text.match(/FT\d+[A-Z0-9]*/i); // Regex to match FT number format
-                    if (ftNumberMatch) {
-                        document.getElementById('ftNumber').value = ftNumberMatch[0];
-                    } else {
-                        alert("No FT Number found in the image.");
-                    }
-                }).catch(error => {
-                    console.error("Error during OCR processing:", error);
-                    alert("Failed to process the image.");
-                }).finally(() => {
-                    // Hide the overlay with spinner and ad after processing
-                    overlay.style.display = 'none';
-                });
-            }
-        }
+        // Reference to the globalCounter in the database
+        const counterRef = database.ref('globalCounter');
 
-        function openLink() {
+        // Display the current counter value
+        counterRef.on('value', (snapshot) => {
+            const count = snapshot.val();
+            document.getElementById('globalCounterDisplay').innerText = `Total Links Generated: ${count}`;
+        });
+
+        // Function to handle link generation and increment the counter
+        function generateLink() {
+            // Increment the counter in the database
+            counterRef.transaction((currentCount) => {
+                return (currentCount || 0) + 1;
+            });
+
+            // Generate link functionality (if applicable)
             const ftNumber = document.getElementById("ftNumber").value;
             const accountNumber = document.getElementById("accountNumber").value;
-            
             if (ftNumber && accountNumber) {
-                // Save only the Account Number to localStorage
-                localStorage.setItem("accountNumber", accountNumber);
-
-                // Increment user counter
-                let userCount = localStorage.getItem("userCount");
-                userCount = userCount ? parseInt(userCount) + 1 : 1;
-                localStorage.setItem("userCount", userCount);
-                document.getElementById("userCounter").innerText = `Total Users: ${userCount}`;
-
-                // Generate the URL and open it in a new tab
                 const url = `https://apps.cbe.com.et:100/?id=${ftNumber}${accountNumber}`;
                 window.open(url, "_blank");
             } else {
-                alert("Please enter both the FT number and last 8 digits of the CBE account number.");
+                alert("Please enter both the FT number and Account number.");
             }
         }
-
-        // Load only the saved CBE Account Number and user count from localStorage
-        document.addEventListener("DOMContentLoaded", function() {
-            const savedAccountNumber = localStorage.getItem("accountNumber");
-            if (savedAccountNumber) {
-                document.getElementById("accountNumber").value = savedAccountNumber;
-            }
-
-            // Display the user counter
-            let userCount = localStorage.getItem("userCount") || 0;
-            document.getElementById("userCounter").innerText = `Total Users: ${userCount}`;
-        });
     </script>
 </body>
 </html>
