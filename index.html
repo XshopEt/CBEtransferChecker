@@ -135,6 +135,11 @@
             width: 100%;
             border-radius: 4px;
         }
+        .counter {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #6A0DAD;
+        }
         @keyframes spin {
             to {
                 transform: rotate(360deg);
@@ -168,6 +173,9 @@
             </div>
             <button type="button" onclick="openLink()">Generate Link</button>
         </form>
+
+        <!-- Display user counter -->
+        <div id="userCounter" class="counter"></div>
 
         <!-- Loading overlay with spinner and ad container -->
         <div id="overlay" class="overlay">
@@ -220,6 +228,12 @@
                 // Save only the Account Number to localStorage
                 localStorage.setItem("accountNumber", accountNumber);
 
+                // Increment user counter
+                let userCount = localStorage.getItem("userCount");
+                userCount = userCount ? parseInt(userCount) + 1 : 1;
+                localStorage.setItem("userCount", userCount);
+                document.getElementById("userCounter").innerText = `Total Users: ${userCount}`;
+
                 // Generate the URL and open it in a new tab
                 const url = `https://apps.cbe.com.et:100/?id=${ftNumber}${accountNumber}`;
                 window.open(url, "_blank");
@@ -228,12 +242,16 @@
             }
         }
 
-        // Load only the saved CBE Account Number from localStorage
+        // Load only the saved CBE Account Number and user count from localStorage
         document.addEventListener("DOMContentLoaded", function() {
             const savedAccountNumber = localStorage.getItem("accountNumber");
             if (savedAccountNumber) {
                 document.getElementById("accountNumber").value = savedAccountNumber;
             }
+
+            // Display the user counter
+            let userCount = localStorage.getItem("userCount") || 0;
+            document.getElementById("userCounter").innerText = `Total Users: ${userCount}`;
         });
     </script>
 </body>
