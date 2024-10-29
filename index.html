@@ -52,12 +52,32 @@
             margin-bottom: 5px;
             color: #555;
         }
-        input[type="text"], input[type="file"] {
+        input[type="text"] {
             width: 100%;
             padding: 10px;
             font-size: 1rem;
             border: 1px solid #ddd;
             border-radius: 4px;
+        }
+        .file-options {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .file-options input[type="file"] {
+            display: none; /* Hide the file input itself */
+        }
+        .file-options label {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            color: #fff;
+            background-color: #6A0DAD;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .file-options label:hover {
+            background-color: #580A93;
         }
         button {
             width: 100%;
@@ -118,9 +138,14 @@
                 <label for="ftNumber">FT Number (or Upload/Take Photo)</label>
                 <input type="text" id="ftNumber" name="ftNumber" placeholder="FT24..." required>
                 
-                <!-- File upload or take photo option -->
-                <input type="file" id="fileUpload" accept="image/*" capture="environment" onchange="extractFTNumber()">
-                <small>Choose a file or take a photo of the slip</small>
+                <!-- Separate file upload and take picture options -->
+                <div class="file-options">
+                    <label for="chooseFile">Choose File</label>
+                    <input type="file" id="chooseFile" accept="image/*" onchange="extractFTNumber(this.files[0])">
+                    
+                    <label for="takePhoto">Take Picture</label>
+                    <input type="file" id="takePhoto" accept="image/*" capture="environment" onchange="extractFTNumber(this.files[0])">
+                </div>
             </div>
             <div class="form-group">
                 <label for="accountNumber">CBE Account Number (Last 8 Digits)</label>
@@ -138,8 +163,7 @@
     </div>
 
     <script>
-        function extractFTNumber() {
-            const file = document.getElementById('fileUpload').files[0];
+        function extractFTNumber(file) {
             const overlay = document.getElementById('overlay');
 
             if (file) {
